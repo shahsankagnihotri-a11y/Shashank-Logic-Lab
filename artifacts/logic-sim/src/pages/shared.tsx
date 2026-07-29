@@ -41,6 +41,8 @@ export default function SharedCircuit() {
         onSave={() => {}}
         onShare={() => {}}
         onExport={() => {}}
+        onSaveFile={() => {}}
+        onLoadFile={() => {}}
         readOnly
       />
       

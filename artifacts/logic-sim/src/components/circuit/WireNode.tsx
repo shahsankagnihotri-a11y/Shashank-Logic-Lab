@@ -3,10 +3,8 @@ import { Wire } from '@/lib/circuit/types';
 
 interface WireNodeProps {
   wire: Wire;
-  fromX: number;
-  fromY: number;
-  toX: number;
-  toY: number;
+  fromX: number; fromY: number;
+  toX: number; toY: number;
   selected: boolean;
   onSelect: (e: React.MouseEvent, id: string) => void;
 }
@@ -14,26 +12,55 @@ interface WireNodeProps {
 export const WireNode: React.FC<WireNodeProps> = ({
   wire, fromX, fromY, toX, toY, selected, onSelect
 }) => {
-  // Simple orthogonal routing
+  const isHigh = wire.state === true;
+  const filterId = `wire-glow-${wire.id}`;
+
+  // Orthogonal path: go horizontal midpoint then vertical
   const midX = (fromX + toX) / 2;
-  const path = `M ${fromX} ${fromY} L ${midX} ${fromY} L ${midX} ${toY} L ${toX} ${toY}`;
-  
+  const d = `M ${fromX} ${fromY} C ${midX} ${fromY}, ${midX} ${toY}, ${toX} ${toY}`;
+
+  const strokeColor =
+    selected   ? '#3b82f6' :
+    isHigh     ? '#22c55e' :
+    'hsl(var(--muted-foreground))';
+
+  const strokeWidth = isHigh ? 2.5 : selected ? 2 : 1.8;
+
   return (
-    <g onClick={(e) => onSelect(e, wire.id)}>
-      {/* Invisible thicker line for easier clicking */}
-      <path 
-        d={path} 
-        fill="none" 
-        stroke="transparent" 
-        strokeWidth="15" 
+    <g>
+      {isHigh && (
+        <defs>
+          <filter id={filterId} x="-20%" y="-100%" width="140%" height="300%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feFlood floodColor="#22c55e" floodOpacity="0.8" result="color" />
+            <feComposite in="color" in2="blur" operator="in" result="glow" />
+            <feMerge>
+              <feMergeNode in="glow" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+      )}
+
+      {/* Click-target (wide invisible line) */}
+      <path
+        d={d}
+        fill="none"
+        stroke="transparent"
+        strokeWidth="12"
         className="cursor-pointer"
+        onClick={(e) => onSelect(e, wire.id)}
       />
-      <path 
-        d={path} 
-        fill="none" 
-        stroke={selected ? "#3b82f6" : wire.state ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))"} 
-        strokeWidth={wire.state ? "3" : "2"}
-        className={`transition-colors duration-75 ${wire.state ? 'drop-shadow-[0_0_5px_hsl(var(--primary))]' : ''}`}
+
+      {/* Visible wire */}
+      <path
+        d={d}
+        fill="none"
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        filter={isHigh ? `url(#${filterId})` : undefined}
+        className="pointer-events-none"
       />
     </g>
   );

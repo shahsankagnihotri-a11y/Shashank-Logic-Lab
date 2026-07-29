@@ -52,11 +52,26 @@ export const Canvas: React.FC<CanvasProps> = ({
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
-    if (e.ctrlKey) {
-      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-      setZoom(z => Math.max(0.2, Math.min(5, z * zoomFactor)));
-    } else {
+    if (e.shiftKey) {
+      // Shift+scroll = horizontal pan
+      setPan(p => ({ x: p.x - e.deltaY, y: p.y }));
+    } else if (e.ctrlKey) {
+      // Ctrl+scroll = pan vertically
       setPan(p => ({ x: p.x - e.deltaX, y: p.y - e.deltaY }));
+    } else {
+      // Plain scroll = zoom centred on mouse cursor
+      const zoomFactor = e.deltaY > 0 ? 0.92 : 1.08;
+      const newZoom = Math.max(0.15, Math.min(8, zoom * zoomFactor));
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      // Adjust pan so the point under the cursor stays fixed
+      setPan(p => ({
+        x: mx - (mx - p.x) * (newZoom / zoom),
+        y: my - (my - p.y) * (newZoom / zoom),
+      }));
+      setZoom(newZoom);
     }
   };
 
