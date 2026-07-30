@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams } from 'wouter';
+import { useParams, useLocation } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   useGetCircuit,
@@ -20,7 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { useLocation } from 'wouter';
+import { Share2 } from 'lucide-react';
 
 const FILE_EXTENSION = '.sll'; // Shashank Logic Labs format
 
@@ -50,6 +50,7 @@ export default function Editor() {
   const [clockHz, setClockHz]       = useState(5);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [helpOpen, setHelpOpen]     = useState(false);
   const [shareUrl, setShareUrl]     = useState('');
 
   // Initialise from server data
@@ -163,7 +164,7 @@ export default function Editor() {
     const ctx = canvas.getContext('2d')!;
     const img = new Image();
     img.onload = () => {
-      ctx.fillStyle = '#0f172a';
+      ctx.fillStyle = '#050a0f'; // Darker bg for export to match theme
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0);
       const a = document.createElement('a');
@@ -189,7 +190,12 @@ export default function Editor() {
   }, [handleSave]);
 
   if (isLoading && !isNew) {
-    return <div className="h-screen w-full flex items-center justify-center text-muted-foreground">Loading circuit...</div>;
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center text-primary mono bg-background">
+        <span className="animate-pulse mb-4 text-4xl">⚡</span>
+        Initializing system...
+      </div>
+    );
   }
 
   return (
@@ -203,6 +209,7 @@ export default function Editor() {
         onExport={handleExport}
         onSaveFile={handleSaveFile}
         onLoadFile={handleLoadFile}
+        onHelp={() => setHelpOpen(true)}
       />
 
       <div className="flex-1 flex overflow-hidden">
@@ -221,26 +228,62 @@ export default function Editor() {
 
       {/* Share Dialog */}
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
-        <DialogContent>
+        <DialogContent className="border-primary/30 bg-card/95 backdrop-blur shadow-[0_0_50px_rgba(0,255,65,0.1)]">
           <DialogHeader>
-            <DialogTitle>Share Circuit</DialogTitle>
-            <DialogDescription>Anyone with this link can view (but not edit) your circuit.</DialogDescription>
+            <DialogTitle className="neon-text flex items-center gap-2 font-mono">
+              <Share2 className="w-5 h-5 text-primary" /> Share System
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground font-mono text-xs">
+              Anyone with this secure uplink can view (but not edit) your circuit.
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2">
-            <Label>Share URL</Label>
+          <div className="space-y-2 mt-2">
+            <Label className="text-xs uppercase tracking-wider text-primary/80 mono font-bold">Secure Uplink URL</Label>
             <div className="flex gap-2">
-              <Input value={shareUrl} readOnly onClick={e => e.currentTarget.select()} data-testid="input-share-url" />
-              <Button variant="outline" onClick={() => {
+              <Input 
+                value={shareUrl} 
+                readOnly 
+                onClick={e => e.currentTarget.select()} 
+                data-testid="input-share-url" 
+                className="bg-background/50 border-primary/20 mono text-primary focus-visible:ring-primary/50"
+              />
+              <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/20 hover:text-primary font-mono" onClick={() => {
                 navigator.clipboard.writeText(shareUrl);
-                toast({ title: 'Copied!', description: 'Link copied to clipboard' });
+                toast({ title: 'Copied!', description: 'Uplink copied to clipboard' });
               }}>
                 Copy
               </Button>
             </div>
           </div>
-          <DialogFooter>
-            <Button onClick={() => setShareDialogOpen(false)}>Close</Button>
+          <DialogFooter className="mt-6">
+            <Button className="font-mono bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => setShareDialogOpen(false)}>Close Uplink</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Shortcuts Dialog */}
+      <Dialog open={helpOpen} onOpenChange={setHelpOpen}>
+        <DialogContent className="border-primary/30 bg-card/95 backdrop-blur shadow-[0_0_50px_rgba(0,255,65,0.1)] sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="neon-text flex items-center gap-2 font-mono text-xl">
+              <span className="text-2xl animate-pulse">⚡</span> Shortcuts
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground font-mono text-xs">
+              Master the system faster.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-5 py-4 text-sm mono">
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-between items-center"><span className="text-muted-foreground">Save</span><span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs">Ctrl+S</span></div>
+              <div className="flex justify-between items-center"><span className="text-muted-foreground">Delete</span><span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs">Del/Back</span></div>
+              <div className="flex justify-between items-center"><span className="text-muted-foreground">Deselect</span><span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs">Esc</span></div>
+            </div>
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-between items-center"><span className="text-muted-foreground">Zoom</span><span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs">Scroll</span></div>
+              <div className="flex justify-between items-center"><span className="text-muted-foreground">Pan</span><span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs">Shift+Drag</span></div>
+              <div className="flex justify-between items-center"><span className="text-muted-foreground">Pan Alt</span><span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs">Space+Drag</span></div>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
