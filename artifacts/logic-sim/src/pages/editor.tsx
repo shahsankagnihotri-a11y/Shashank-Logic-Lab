@@ -209,6 +209,13 @@ export default function Editor() {
         onExport={handleExport}
         onSaveFile={handleSaveFile}
         onLoadFile={handleLoadFile}
+        onClearAll={() => {
+          if (confirm('Clear all gates and wires? This cannot be undone.')) {
+            setGates([]);
+            setWires([]);
+            setSelectedIds([]);
+          }
+        }}
         onHelp={() => setHelpOpen(true)}
       />
 
@@ -272,17 +279,24 @@ export default function Editor() {
               Master the system faster.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-5 py-4 text-sm mono">
-            <div className="flex flex-col gap-4">
-              <div className="flex justify-between items-center"><span className="text-muted-foreground">Save</span><span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs">Ctrl+S</span></div>
-              <div className="flex justify-between items-center"><span className="text-muted-foreground">Delete</span><span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs">Del/Back</span></div>
-              <div className="flex justify-between items-center"><span className="text-muted-foreground">Deselect</span><span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs">Esc</span></div>
-            </div>
-            <div className="flex flex-col gap-4">
-              <div className="flex justify-between items-center"><span className="text-muted-foreground">Zoom</span><span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs">Scroll</span></div>
-              <div className="flex justify-between items-center"><span className="text-muted-foreground">Pan</span><span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs">Shift+Drag</span></div>
-              <div className="flex justify-between items-center"><span className="text-muted-foreground">Pan Alt</span><span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs">Space+Drag</span></div>
-            </div>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4 py-4 text-sm mono">
+            {[
+              ['Save to cloud',  'Ctrl+S'],
+              ['Copy selected',  'Ctrl+C'],
+              ['Paste',         'Ctrl+V'],
+              ['Cut',           'Ctrl+X'],
+              ['Select all',    'Ctrl+A'],
+              ['Delete',        'Del / Back'],
+              ['Deselect',      'Esc'],
+              ['Zoom in/out',   'Scroll'],
+              ['Pan (H)',       'Shift+Scroll'],
+              ['Pan (free)',    'Middle-drag'],
+            ].map(([action, key]) => (
+              <div key={action} className="flex justify-between items-center gap-2">
+                <span className="text-muted-foreground text-xs">{action}</span>
+                <span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-[10px] whitespace-nowrap shrink-0">{key}</span>
+              </div>
+            ))}
           </div>
         </DialogContent>
       </Dialog>

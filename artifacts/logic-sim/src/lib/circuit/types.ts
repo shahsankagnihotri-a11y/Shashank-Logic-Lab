@@ -6,6 +6,10 @@ export type GateType =
   | 'MUX' | 'DEMUX'
   | 'HALF_ADDER' | 'FULL_ADDER';
 
+export const INPUT_GATE_TYPES: GateType[]  = ['SWITCH', 'CLOCK'];
+export const OUTPUT_GATE_TYPES: GateType[] = ['LED', 'SEVEN_SEG'];
+export const LOGIC_GATE_TYPES: GateType[]  = ['AND', 'OR', 'NOT', 'NAND', 'NOR', 'XOR', 'XNOR', 'BUFFER'];
+
 export interface Gate {
   id: string;
   type: GateType;
@@ -16,6 +20,8 @@ export interface Gate {
   outputs: boolean[];
   state: any;
   inputCount: number;
+  /** Visual scale multiplier (default 1). Affects rendering size and port positions. */
+  scale?: number;
 }
 
 export interface Wire {

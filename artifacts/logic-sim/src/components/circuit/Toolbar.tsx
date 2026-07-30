@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Play, Pause, Save, Share2, Download, ArrowLeft, FolderOpen, FileDown, HelpCircle } from 'lucide-react';
+import { Play, Pause, Save, Share2, Download, ArrowLeft, FolderOpen, FileDown, HelpCircle, Trash2 } from 'lucide-react';
 import { Link } from 'wouter';
 
 interface ToolbarProps {
@@ -16,13 +16,14 @@ interface ToolbarProps {
   onExport: () => void;
   onSaveFile: () => void;
   onLoadFile: (file: File) => void;
+  onClearAll?: () => void;
   onHelp?: () => void;
   readOnly?: boolean;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
   name, setName, running, setRunning, clockHz, setClockHz,
-  onSave, onShare, onExport, onSaveFile, onLoadFile, onHelp, readOnly
+  onSave, onShare, onExport, onSaveFile, onLoadFile, onClearAll, onHelp, readOnly
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -86,6 +87,17 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         <div className="flex items-center gap-1 border-l border-border pl-4">
           {!readOnly && (
             <>
+              {/* Clear all */}
+              <Button
+                variant="ghost" size="icon"
+                onClick={onClearAll}
+                title="Clear all — delete every gate and wire"
+                className="hover:text-destructive transition-colors text-muted-foreground"
+                data-testid="button-clear-all"
+              >
+                <Trash2 className="w-5 h-5" />
+              </Button>
+
               {/* Save to server */}
               <Button variant="ghost" size="icon" onClick={onSave} title="Save to cloud (Ctrl+S)" className="hover:text-primary transition-colors text-muted-foreground" data-testid="button-save-cloud">
                 <Save className="w-5 h-5" />

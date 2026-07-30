@@ -43,6 +43,7 @@ export default function SharedCircuit() {
         onExport={() => {}}
         onSaveFile={() => {}}
         onLoadFile={() => {}}
+        onClearAll={() => {}}
         readOnly
       />
       
