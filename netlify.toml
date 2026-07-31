@@ -1,0 +1,9 @@
+[build]
+  command = "pnpm --filter @workspace/logic-sim run build"
+  publish = "artifacts/logic-sim/dist/public"
+
+[dev]
+  command = "pnpm --filter @workspace/logic-sim run dev"
+  targetPort = 8080
+  port = 8889
+  autoLaunch = false
