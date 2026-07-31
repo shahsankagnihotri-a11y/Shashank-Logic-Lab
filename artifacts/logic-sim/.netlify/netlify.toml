@@ -7,10 +7,10 @@ redirects = []
 [functions."*"]
 
 [build]
-publish = "/opt/build/repo/artifacts/logic-sim/dist"
+publish = "/opt/build/repo/artifacts/logic-sim/dist/public"
 publishOrigin = "ui"
 commandOrigin = "ui"
-command = "pnpm --filter @workspace/logic-sim... run build"
+command = "pnpm --filter @workspace/logic-sim run build"
 
 [build.environment]
 
